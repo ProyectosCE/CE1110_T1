@@ -1,0 +1,15 @@
+digraph FSK_Demodulation {
+    rankdir=LR;
+    node [shape=box, style=filled, color=lightgray];
+
+    SenalRecibida [label="Señal FSK Recibida"];
+    VentanaMuestreo [label="Ventana de Muestreo\n(Intervalo de Símbolo)"];
+    FFT [label="FFT\n(Análisis del espectro de potencia)"];
+    DiscriminadorFrecuencia [label="Discriminador de Frecuencia\n(Compara potencia en f0 vs f1)"];
+    DatosRecuperados [label="Datos Digitales Recuperados"];
+
+    SenalRecibida -> VentanaMuestreo;
+    VentanaMuestreo -> FFT;
+    FFT -> DiscriminadorFrecuencia;
+    DiscriminadorFrecuencia -> DatosRecuperados;
+}
