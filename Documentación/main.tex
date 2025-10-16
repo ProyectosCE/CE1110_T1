@@ -1,0 +1,195 @@
+\documentclass[letter,12pt]{article}
+\usepackage[left=2.54cm, right=2.54cm, top=2.54cm, bottom=2.54cm]{geometry} % Márgenes APA
+\usepackage{setspace} % Interlineado
+\setlength{\parindent}{1.27cm} % Sangría estándar APA
+\setlength{\parskip}{0pt}     % Sin espacio entre párrafos
+\usepackage{graphicx} % Para insertar imágenes
+\usepackage{float} % Para posicionar imágenes y tablas
+\usepackage{caption} % Para modificar captions de tablas e imágenes
+\usepackage{csquotes} % Para mejor manejo de citas
+\usepackage{amsmath} % Para ecuaciones matemáticas
+\usepackage{svg}
+\usepackage{indentfirst}
+
+%==========REFERENCIAS=============
+\usepackage[backend=bibtex,style=ieee,biblabel=dot,language=spanish]{biblatex}
+\addbibresource{referencias.bib}
+
+\usepackage[
+    xetex,
+    pdftitle={Tarea \# 1 - FFT y Sistemas de Modulación}, % Título del PDF
+    pdfauthor={Barquero, J., Feng, J., Montero, A.},   % Autor del PDF
+    pdfsubject={CE1110 - Análisis de Señales Mixtas}, % Tema del PDF
+    pdfkeywords={}, % Palabras clave del PDF
+    pdfproducer={LaTeX with hyperref package},
+    pdfcreator={pdfLatex}
+]{hyperref}
+
+\hypersetup{
+    colorlinks=true,        % Colorea los enlaces en lugar de usar cajas alrededor de ellos
+    linkcolor = black,
+    urlcolor  = blue,
+    citecolor = black,
+    anchorcolor = blue         % Color de los enlaces externos
+}
+
+\begin{document}
+% ====== Portada ======
+\begin{titlepage}
+    \centering
+    {\LARGE \textbf{Tarea \# 1} \par}
+    {\LARGE FFT y Sistemas de Modulación \par}
+    \vspace{1.5cm}
+    {\large José Bernardo Barquero Bonilla \\ 2023150476 \par}
+    {\large Jimmy Feng Feng \\ 2023060347 \par}
+    {\large Alexander Montero Vargas \\ 2023166058 \par}
+    \vspace{1.5cm}
+    {\Large Instituto Tecnológico de Costa Rica \par}
+    {\large Escuela de Ingeniería en Computadores \par}
+    {\large Curso: CE1110 - Análisis de Señales Mixtas \par}
+    \vspace{1.5cm}
+    {\large Profesor: Luis Alberto Chavarría Zamora \par}
+    \vfill
+    {\large 15 de Octubre de 2025 \par}
+\end{titlepage}
+
+% ====== Desarrollo ======
+\section{DFT/FFT y serie de Fourier}
+
+La Transformada Discreta de Fourier (DFT) es la definición matemática que proyecta una secuencia finita \(x[n]\) de longitud \(N\) sobre exponenciales complejas y entrega \(N\) muestras espectrales \(X[k]\) igualmente espaciadas en frecuencia \cite{OppenheimSchaferDTSP3e,VetterliKovacevicGoyalFSP2014}. La DFT se calcula como
+\[
+X[k]=\sum_{n=0}^{N-1} x[n]\,e^{-j2\pi kn/N},\quad k=0,\dots,N-1,
+\]
+y la inversa como
+\[
+x[n]=\frac{1}{N}\sum_{k=0}^{N-1} X[k]\,e^{+j2\pi kn/N},\quad n=0,\dots,N-1.
+\]
+Estas expresiones fijan la convención de normalización usada a lo largo del documento \cite{OppenheimSchaferDTSP3e}.
+
+La Transformada Rápida de Fourier (FFT) no es una transformada distinta, sino un algoritmo que evalúa la DFT con complejidad \(O(N\log N)\), en contraste con los \(O(N^2)\) de la evaluación directa \cite{CooleyTukey1965}. En la práctica, “hacer una FFT” significa calcular la DFT de forma eficiente; la distinción es: \emph{qué} se calcula (DFT) versus \emph{cómo} se calcula (FFT) \cite{OppenheimSchaferDTSP3e,NumPyFFT2024}.
+
+Para una señal discreta \(x[n]\), la transformada \(X(e^{j\omega})\) (DTFT) es continua en \(\omega\) y periódica con período \(2\pi\) \cite{OppenheimSchaferDTSP3e,NISTDLMF_Fourier}:
+\[
+X(e^{j\omega})=\sum_{n=-\infty}^{\infty} x[n]\,e^{-j\omega n},\qquad
+X(e^{j(\omega+2\pi)})=X(e^{j\omega}).
+\]
+La DFT puede interpretarse como un \emph{muestreo} de esta DTFT en \(N\) frecuencias uniformemente espaciadas \( \omega_k=2\pi k/N \), o en Hz \( f_k=\tfrac{k}{N}f_s \), con resolución \(\Delta f=\tfrac{f_s}{N}\) \cite{OppenheimSchaferDTSP3e,VetterliKovacevicGoyalFSP2014,SciPyFFT2024}. Aumentar \(N\) mejora la resolución; el \emph{zero-padding} densifica la grilla de lectura sin aumentar la resolución física \cite{SciPyFFT2024,NumPyFFT2024}.
+
+La relación con la serie de Fourier surge de la periodicidad. La serie de Fourier representa una señal periódica continua \(x(t)\) como suma de armónicos discretos \(k f_0\) con coeficientes \(c_k\) \cite{OsgoodFTAMS2019,NISTDLMF_Fourier}:
+\[
+x(t)=\sum_{k=-\infty}^{\infty} c_k\,e^{j2\pi k f_0 t},\qquad
+c_k=\frac{1}{T_0}\int_{0}^{T_0} x(t)\,e^{-j2\pi k f_0 t}\,dt.
+\]
+Análogamente, al tomar un bloque de \(N\) muestras y asumir su repetición periódica en tiempo discreto, la DFT entrega los coeficientes de la serie de Fourier de esa señal periódica discreta: tiempo (discreto) periódico \(\Rightarrow\) espectro (discreto) en \(N\) líneas \cite{OppenheimSchaferDTSP3e,VetterliKovacevicGoyalFSP2014}.
+
+Finalmente, respecto al “muestreo del entorno continuo”, muestrear \(x(t)\) cada \(T_s\) genera \(x[n]=x(nT_s)\) y replica el espectro continuo \(X_c(f)\) cada \(f_s=1/T_s\); si \(f_s<2f_{\max}\) ocurre aliasing \cite{OppenheimSchaferDTSP3e,OsgoodFTAMS2019}. Sobre esta señal ya discreta, la DFT toma muestras de la DTFT en los bins \(f_k\), cerrando la cadena conceptual: muestreo temporal \(\Rightarrow\) réplicas en frecuencia; ventana temporal \(\Rightarrow\) suavizado por convolución; DFT/FFT \(\Rightarrow\) muestreo uniforme del espectro discreto-periódico \cite{OppenheimSchaferDTSP3e,SciPyFFT2024}.
+
+
+
+% =========================
+\section{Experimento 1: FFT sobre audio libre}
+% Esta sección cubre la parte 2 (implementación FFT sobre audio libre) EN RESULTADOS,
+% sin incluir código: solo describe datos, método, y muestra/analiza figuras.
+\subsection{Datos y preparación}
+% - Fuente del audio (licencia libre, citar en referencias).
+% - Duración, tasa de muestreo, preprocesamiento (mono, normalización).
+\subsubsection{Configuración de análisis}
+% - Ventana usada (o sin ventana), N de la FFT, zero-padding (si se usó).
+% - Justificación de elecciones (ruido/armónicos/estacionariedad).
+\subsection{Resultados espectrales}
+% - Insertar figuras de magnitud y fase (exportadas por el script).
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/fft_magnitud_audio.png} % <-- reemplaza con tu PNG
+  \caption{Espectro de magnitud $\lvert X(f)\rvert$ de la pista analizada.}
+  \label{fig:fft-mag-audio}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/fft_fase_audio.png} % <-- reemplaza con tu PNG
+  \caption{Espectro de fase $\angle X(f)$ de la pista analizada.}
+  \label{fig:fft-fase-audio}
+\end{figure}
+\subsubsection{Interpretación}
+% - Identificar picos, armónicos, banda ocupada, ruido.
+% - Comentar fase (linealidad, retardos, saltos 2\pi si los hay).
+% - Relacionar con ventana y \Delta f. Señalar limitaciones.
+
+% =========================
+\section{Uso de Fourier en modulación y demodulación}
+% Esta sección cubre la parte 3 (explicar a nivel de bloques cómo Fourier participa).
+\subsection{Diagrama de bloques del sistema}
+% - Incluir un diagrama: fuente -> modulador -> canal -> demodulador -> salida.
+% - Puedes usar una figura SVG o TikZ exportada como PDF/PNG.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/diag_mod_demod.png} % <-- reemplaza con tu diagrama
+  \caption{Diagrama de bloques del modulador-demodulador considerado.}
+  \label{fig:bloques-mod-demod}
+\end{figure}
+\subsubsection{Señales esperadas en cada bloque}
+% - Bocetos de formas de onda / espectros: banda base, portadora, bandas laterales.
+% - Dónde se produce la traslación en frecuencia (mezcla), y dónde el filtrado.
+\subsection{Lectura en el dominio de Fourier}
+% - Explicar con palabras cómo se verían los espectros en cada etapa.
+% - Vincular con filtros (PB/PBanda), sincronía y pérdidas por canal.
+
+% =========================
+\section{Bibliotecas y \emph{drivers} en microcontroladores}
+% Esta sección cubre la parte 4 (bibliotecas MCU).
+\subsection{Biblioteca/Driver}
+% - Tabla con columnas: Bloque | MCU/Framework | Biblioteca/Driver | Comentario.
+% - Ejemplos: CMSIS-DSP (ARM), ESP-DSP (ESP32), ArduinoFFT, KissFFT, ADC/DAC/I2S.
+
+\subsubsection{Consideraciones de implementación}
+% - Memoria (tamaño de buffers), tiempo real (latencias), precisión en punto fijo.
+% - Consumo energético, reloj, estabilidad de osciladores.
+
+% =========================
+\section{Prototipo en PC: modulación y demodulación}
+% Esta sección cubre la parte 5 (demo PC). Solo resultados e interpretación.
+\subsection{Especificación del esquema de modulación}
+% - Elegir uno (p.ej., AM-DSB, AM-SSB, BPSK, QPSK).
+% - Parámetros: fs, fc, filtros (ancho de banda), niveles, SNR si hubo ruido simulado.
+\subsubsection{Procedimiento experimental}
+% - Flujo de generación: señal base -> modulador -> canal (opcional) -> demod.
+% - Cómo generan figuras: script -> PNGs; lista de archivos producidos.
+\subsection{Resultados en el tiempo}
+% - Figuras de señal modulada y demodulada en el tiempo. Rotular ejes con unidades.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/mod_tiempo.png} % <-- reemplaza con tu PNG
+  \caption{Señal modulada en el dominio del tiempo.}
+  \label{fig:mod-tiempo}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/demod_tiempo.png} % <-- reemplaza con tu PNG
+  \caption{Señal demodulada (salida) en el dominio del tiempo.}
+  \label{fig:demod-tiempo}
+\end{figure}
+\subsection{Resultados en frecuencia}
+% - Espectros de la señal modulada y demodulada (magnitud; opcional fase).
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/mod_frecuencia.png} % <-- reemplaza con tu PNG
+  \caption{Espectro de la señal modulada.}
+  \label{fig:mod-freq}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figs/demod_frecuencia.png} % <-- reemplaza con tu PNG
+  \caption{Espectro de la señal demodulada.}
+  \label{fig:demod-freq}
+\end{figure}
+\subsubsection{Discusión de desempeño}
+% - ¿Se recuperó correctamente la banda base? ¿Distorsión/ruido?
+% - Efecto de filtros y de sincronía (portadora/fases). Limitaciones del prototipo.
+
+
+    
+% ====== Referencias ======
+\newpage
+\printbibliography
+
+\end{document}
