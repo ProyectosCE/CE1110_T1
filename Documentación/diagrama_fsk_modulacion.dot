@@ -1,0 +1,13 @@
+digraph FSK_Modulation {
+    rankdir=LR;
+    node [shape=box, style=filled, color=lightgray];
+
+    FuenteDatos [label="Símbolos Digitales"];
+    MapeoFrecuencia [label="Mapeador de Frecuencia FSK\n(Asigna '0' a f0 y '1' a f1)"];
+    GeneradorSenal [label="Generador de Señal FSK\n(Oscilador Conmutable o Integrador de Fase)"];
+    SenalTransmitida [label="Señal FSK Transmitida"];
+
+    FuenteDatos -> MapeoFrecuencia;
+    MapeoFrecuencia -> GeneradorSenal;
+    GeneradorSenal -> SenalTransmitida;
+}

@@ -1,0 +1,15 @@
+digraph FSK_Mod_Demod {
+    rankdir=LR;
+    node [shape=box, style=rounded, fontsize=12];
+
+    Datos_Binarios [label="Datos binarios"];
+    Mapeador [label="Mapeador\n('1'→f₁, '0'→f₀)"];
+    Oscilador_FSK [label="Oscilador FSK\n(Modulador)"];
+    Canal [label="Canal\n(ruido, atenuación)"];
+    Receptor [label="Receptor"];
+    FFT [label="Analizador Espectral\n(FFT)"];
+    Detector [label="Discriminador de Frecuencia\n(Detector)"];
+    Salida [label="Datos binarios\nrecuperados"];
+
+    Datos_Binarios -> Mapeador -> Oscilador_FSK -> Canal -> Receptor -> FFT -> Detector -> Salida;
+}
